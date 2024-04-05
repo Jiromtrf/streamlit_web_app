@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pandas as pd
 
 st.title('天気アプリ')
@@ -24,7 +24,9 @@ url = "https://weather.tsukumijima.net/api/forecast/city/" + city_code
 response = requests.get(url)
 
 weather_json = response.json()
-now_hour = datetime.now().hour
+
+JST = timezone(timedelta(hours=+9))
+now_hour = datetime.now(JST).hour
 
 if 0 <= now_hour and now_hour < 6:
     weather_now = weather_json["forecasts"][0]["chanceOfRain"]["T00_06"]
@@ -39,7 +41,7 @@ weather_now_text = "現在の降水確率:" + weather_now
 st.write(weather_now_text)
 
 # 予報の日付を取得し、それをインデックスに使用
-forecast_dates = [datetime.now() + timedelta(days=i) for i in range(3)]
+forecast_dates = [datetime.now(JST) + timedelta(days=i) for i in range(3)]
 forecast_dates_str = [d.strftime('%Y-%m-%d') for d in forecast_dates] # YYYY-MM-DD 形式に変換
 
 # 予報データから降水確率の部分を抽出し、新しいカラム名でDataFrameを作成
